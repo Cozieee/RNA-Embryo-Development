@@ -79,14 +79,14 @@ all_embryo_cell_QC <- ScaleData(all_embryo_cell_QC, vars.to.regress = "total_cou
 
 # Perform linear dimension reduction (PCA)
 
-all_embryo_cell_QC <- RunPCA(all_embryo_cell_QC, features = VariableFeatures(object = all_embryo_cell_QC))
-DimHeatmap(all_embryo_cell_QC, dims = 1:20, cells = 500, balanced = TRUE)
+all_embryo_cell_QC <- RunPCA(all_embryo_cell_QC, features = VariableFeatures(object = all_embryo_cell_QC), npcs = 100)
+DimHeatmap(all_embryo_cell_QC, dims = 1:30, cells = 500, balanced = TRUE)
 
 # Determine the "dimensionality" of the dataset (choosing components)
 # checking PCA genes, run statistical test, elbow plots.
 # advise users to err on the higher side when choosing this parameter.
 
-all_embryo_cell_QC <- JackStraw(all_embryo_cell_QC, num.replicate = 100)
-all_embryo_cell_QC <- ScoreJackStraw(all_embryo_cell_QC, dims = 1:20)
+all_embryo_cell_QC <- JackStraw(all_embryo_cell_QC, num.replicate = 100, dims = 100)
+all_embryo_cell_QC <- ScoreJackStraw(all_embryo_cell_QC, dims = 1:100)
 
 save(all_embryo_cell_QC, file="data/experimentation/main/all_embryo_cell_QC.rda")
