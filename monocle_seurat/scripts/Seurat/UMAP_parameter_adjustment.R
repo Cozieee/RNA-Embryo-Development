@@ -20,7 +20,7 @@ trials <- c()
 # ============================= DIMENSION TESTING ===============================
 
 
-dimensions <- seq(10, 35, by = 5)
+dimensions <- seq(40, 65, by = 5)
 num_trials = length(dimensions)
 
 # Including 1st 15 dimensions in PCA using KNN
@@ -74,4 +74,4 @@ for (i in c(1:num_trials)){
 
 # Saving processed umaps with resolutions .6 to 1.8
 
-save(trials, data_RNA, file="data/experimentation/umap_parameter_adjustment/trial_dims_10-35.rda")
+save(trials10.35C, file="data/experimentation/umap_parameter_adjustment/trial_dims_10-35.rds")

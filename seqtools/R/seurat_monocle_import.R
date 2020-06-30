@@ -1,8 +1,7 @@
+gen_cds <- function(dataRNA, metaRNA) {
+  dataUMAP <- dataRNA@data
 
-seurat_to_cds <- function (seurat) {
-  dataUMAP <- data_RNA@data
-
-  cell_metadata_UMAP <- new('AnnotatedDataFrame', data = seurat@meta.data)
+  cell_metadata_UMAP <- new('AnnotatedDataFrame', data = metaRNA)
 
   fData_UMAP <- data.frame(gene_short_name = row.names(dataUMAP), row.names = row.names(dataUMAP))
 
@@ -12,9 +11,13 @@ seurat_to_cds <- function (seurat) {
 
   #Construct monocle cds
 
-  cds_from_seurat <- new_cell_data_set(dataUMAP,
-                                       cell_metadata = cell_metadata_UMAP,
-                                       gene_metadata = gene_metadata_UMAP)
+  return (new_cell_data_set(dataUMAP,
+                                   cell_metadata = cell_metadata_UMAP,
+                                   gene_metadata = gene_metadata_UMAP))
+}
+
+seurat_to_cds <- function (seurat, dataRNA) {
+  cds_from_seurat <- gen_cds(dataRNA)
 
   recreate.partition <- c(rep(1, length(cds_from_seurat@colData@rownames)))
   names(recreate.partition) <- cds_from_seurat@colData@rownames
@@ -26,7 +29,7 @@ seurat_to_cds <- function (seurat) {
 
   list_cluster <- seurat@meta.data[[sprintf("ClusterIdents", 1.4, dim)]]
 
-  names(list_cluster) <- data_RNA@data@Dimnames[[2]]
+  names(list_cluster) <- dataRNA@data@Dimnames[[2]]
 
   cds_from_seurat@clusters@listData[["UMAP"]][["clusters"]] <- list_cluster
 
@@ -45,15 +48,17 @@ seurat_to_cds <- function (seurat) {
   return (cds_from_seurat)
 }
 
-fill_rna <- function(object){
+add_rna <- function(object, dataRNA){
 
   ret <- object
   obj_class = class(object)
 
   if (obj_class == "Seurat"){
-    ret@assays$RNA <- data_RNA
+    ret@assays$RNA <- dataRNA
   } else if (obj_class == "cell_data_set") {
-    ret@assays@data@listData["counts"] <- data_RNA
+    ret@assays@data@listData["counts"] <- dataRNA
+  }else if (obj_class == "gg") {
+    ret$plot_env$cds <- dataRNA
   }
 
   return (ret)
@@ -69,7 +74,25 @@ del_rna <- function(object){
     ret@assays$RNA <- NULL
   } else if (obj_class == "cell_data_set") {
     ret@assays@data@listData <- list()
+  } else if (obj_class == "gg") {
+    ret$plot_env$cds = NULL
+    ret$layers$mapping = NULL
   }
 
   return (ret)
+}
+
+get_rna <- function(object){
+
+  ret <- object
+  obj_class = class(object)
+
+  if (obj_class == "Seurat"){
+    return (ret@assays$RNA)
+  } else if (obj_class == "cell_data_set") {
+    return (ret@assays@data@listData)
+  }else if (obj_class == "gg") {
+    return (ret$plot_env$cds)
+  }
+
 }
